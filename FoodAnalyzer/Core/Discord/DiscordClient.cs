@@ -73,6 +73,7 @@ internal class DiscordClient : IDisposable
             new DiscordLogger(client),
             new OnReady(client, _interactionService, _serviceProvider),
             new OnInteractionCreated(client, _interactionService, _serviceProvider),
+            new OnMessageReceived(client),
         };
 
         foreach (IBaseEvent e in events)

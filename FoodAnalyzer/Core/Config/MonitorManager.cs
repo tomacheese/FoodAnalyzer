@@ -28,16 +28,25 @@ internal class MonitorManager
     public static void AddChannel(ulong guildId, ulong receivedChannelId, ulong sentChannelId)
     {
         MonitorData monitor = Instance;
-        if (!monitor.Channels.Any(c => c.GuildId == guildId && c.ReceivedChannelId == receivedChannelId))
+        if (monitor.Channels.Any(c => c.GuildId == guildId && c.ReceivedChannelId == receivedChannelId))
         {
-            monitor.Channels.Add(new MonitorChannelData
-            {
-                GuildId = guildId,
-                ReceivedChannelId = receivedChannelId,
-                SentChannelId = sentChannelId,
-            });
-            Save(monitor);
+            RemoveChannel(guildId, receivedChannelId);
         }
+
+        monitor.Channels.Add(new MonitorChannelData
+        {
+            GuildId = guildId,
+            ReceivedChannelId = receivedChannelId,
+            SentChannelId = sentChannelId,
+        });
+        Save(monitor);
+    }
+
+    public static void RemoveChannel(ulong guildId, ulong receivedChannelId)
+    {
+        MonitorData monitor = Instance;
+        monitor.Channels.RemoveAll(c => c.GuildId == guildId && c.ReceivedChannelId == receivedChannelId);
+        Save(monitor);
     }
 
     public static void Save()
