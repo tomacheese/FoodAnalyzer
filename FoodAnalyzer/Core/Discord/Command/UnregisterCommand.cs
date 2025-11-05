@@ -12,9 +12,9 @@ namespace FoodAnalyzer.Core.Discord.Command;
 public class UnregisterCommand : InteractionModuleBase<SocketInteractionContext>
 {
     /// <summary>
-    /// チャンネルを監視対象から削除する。
+    /// チャンネルを監視対象から削除する
     /// </summary>
-    /// <returns>非同期タスク</returns>
+    /// <returns>非同期処理を表すタスク</returns>
     [SlashCommand("unregister", "このチャンネルを監視対象から削除する")]
     public async Task RegisterAsync()
     {

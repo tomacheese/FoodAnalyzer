@@ -10,9 +10,9 @@ namespace FoodAnalyzer.Core.Azure;
 internal static class JsonSchemaGenerator
 {
     /// <summary>
-    /// 指定された型のJSON Schemaを生成します
+    /// 指定された型のJSON Schemaを生成する
     /// </summary>
-    /// <typeparam name="T">スキーマを生成する対象の型</typeparam>
+    /// <typeparam name="T">スキーマ生成対象の型</typeparam>
     /// <returns>JSON形式のスキーマ文字列</returns>
     public static string GenerateSchema<T>()
     {
@@ -22,11 +22,11 @@ internal static class JsonSchemaGenerator
     }
 
     /// <summary>
-    /// 型情報に基づいてスキーマオブジェクトを生成します
+    /// 型情報に基づいてスキーマオブジェクトを生成する
     /// </summary>
-    /// <param name="type">スキーマを生成する対象の型</param>
+    /// <param name="type">スキーマ生成対象の型</param>
     /// <param name="propertyInfo">プロパティ情報（属性の取得に使用）</param>
-    /// <returns>スキーマを表すオブジェクト</returns>
+    /// <returns>生成されたスキーマオブジェクト</returns>
     private static object GenerateSchemaForType(Type type, PropertyInfo? propertyInfo = null)
     {
         // 文字列型の処理

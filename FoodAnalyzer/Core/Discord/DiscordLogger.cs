@@ -6,18 +6,18 @@ using FoodAnalyzer.Core.Discord.Event;
 namespace FoodAnalyzer.Core.Discord;
 
 /// <summary>
-/// Discordのログイベントを処理するロガークラス。
+/// Discordのログイベントを処理するロガークラス
 /// </summary>
 /// <remarks>
-/// <see cref="DiscordLogger"/> の新しいインスタンスを初期化します。
+/// <see cref="DiscordLogger"/> の新しいインスタンスを初期化する
 /// </remarks>
-/// <param name="client">Discordクライアントインスタンス。</param>
+/// <param name="client">Discordクライアントインスタンス</param>
 internal class DiscordLogger(DiscordSocketClient client) : IBaseEvent
 {
     /// <summary>
-    /// 準備完了イベントのハンドラーを登録する。
+    /// 準備完了イベントのハンドラーを登録する
     /// </summary>
-    /// <returns>完了したTask</returns>
+    /// <returns>完了を表すタスク</returns>
     public Task RegisterAsync()
     {
         client.Log += Handle;
@@ -25,10 +25,10 @@ internal class DiscordLogger(DiscordSocketClient client) : IBaseEvent
     }
 
     /// <summary>
-    /// Discordのログイベントを処理します。
+    /// Discordのログイベントを処理する
     /// </summary>
-    /// <param name="message">Discordのログメッセージ。</param>
-    /// <returns>完了したTask。</returns>
+    /// <param name="message">Discordのログメッセージ</param>
+    /// <returns>完了を表すタスク</returns>
     public Task Handle(LogMessage message)
     {
         if (message.Exception is CommandException cmdException)

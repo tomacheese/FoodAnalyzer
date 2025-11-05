@@ -6,8 +6,8 @@ namespace FoodAnalyzer.Core.Discord.Event;
 internal interface IBaseEvent
 {
     /// <summary>
-    /// イベントの登録処理を行う。
+    /// イベントの登録処理を行う
     /// </summary>
-    /// <returns>完了したTask</returns>
+    /// <returns>完了を表すタスク</returns>
     Task RegisterAsync() => Task.CompletedTask;
 }

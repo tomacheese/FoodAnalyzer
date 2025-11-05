@@ -7,7 +7,7 @@ using OpenAI.Chat;
 namespace FoodAnalyzer.Core.Azure;
 
 /// <summary>
-/// Azure OpenAI サービスを利用して食事画像の分析を行うクラスです。
+/// Azure OpenAI サービスを利用して食事画像の分析を行うクラス
 /// </summary>
 internal class AzureOpenAI
 {
@@ -18,11 +18,11 @@ internal class AzureOpenAI
     };
 
     /// <summary>
-    /// <see cref="AzureOpenAI"/> クラスの新しいインスタンスを初期化します。
+    /// <see cref="AzureOpenAI"/> クラスの新しいインスタンスを初期化する
     /// </summary>
-    /// <param name="endpoint">Azure OpenAI エンドポイントの URI。</param>
-    /// <param name="apiKey">API キー。</param>
-    /// <param name="deploymentName">デプロイメント名。</param>
+    /// <param name="endpoint">Azure OpenAI エンドポイントの URI</param>
+    /// <param name="apiKey">API キー</param>
+    /// <param name="deploymentName">デプロイメント名</param>
     public AzureOpenAI(string endpoint, string apiKey, string deploymentName)
     {
         var azureClient = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
@@ -30,12 +30,12 @@ internal class AzureOpenAI
     }
 
     /// <summary>
-    /// 指定された画像 URL の食事画像を分析し、食品ごとの栄養情報や位置情報を推定します。
+    /// 指定された画像 URL の食事画像を分析し、食品ごとの栄養情報や位置情報を推定する
     /// </summary>
-    /// <param name="url">分析対象の画像 URL。</param>
-    /// <param name="width">画像の幅（ピクセル）。</param>
-    /// <param name="height">画像の高さ（ピクセル）。</param>
-    /// <returns>分析結果を含む <see cref="FoodAnalysisResponse"/> のタスク。</returns>
+    /// <param name="url">分析対象の画像 URL</param>
+    /// <param name="width">画像の幅（ピクセル）</param>
+    /// <param name="height">画像の高さ（ピクセル）</param>
+    /// <returns><see cref="FoodAnalysisResponse"/> を含む非同期処理タスク</returns>
     public async Task<FoodAnalysisResponse> AnalyzeFoodAsync(string url, int width, int height)
     {
         // Generate schema from FoodAnalysisResponse class

@@ -5,14 +5,14 @@ using Discord.WebSocket;
 namespace FoodAnalyzer.Core.Discord.Event;
 
 /// <summary>
-/// Discordクライアントの準備完了時に発生するイベントを処理する。
+/// Discordクライアントの準備完了時に発生するイベントを処理する
 /// </summary>
 internal class OnReady(DiscordSocketClient client, InteractionService interactionService, IServiceProvider serviceProvider) : IBaseEvent
 {
     /// <summary>
-    /// 準備完了イベントのハンドラーを登録する。
+    /// 準備完了イベントのハンドラーを登録する
     /// </summary>
-    /// <returns>完了したTask</returns>
+    /// <returns>完了を表すタスク</returns>
     public Task RegisterAsync()
     {
         client.Ready += HandleAsync;
@@ -20,9 +20,9 @@ internal class OnReady(DiscordSocketClient client, InteractionService interactio
     }
 
     /// <summary>
-    /// 準備完了イベントのハンドラー。
+    /// 準備完了イベントのハンドラー
     /// </summary>
-    /// <returns>完了したTask</returns>
+    /// <returns>非同期処理を表すタスク</returns>
     public async Task HandleAsync()
     {
         Console.WriteLine($"Connected as {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}");

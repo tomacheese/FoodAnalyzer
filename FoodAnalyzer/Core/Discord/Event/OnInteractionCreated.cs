@@ -5,14 +5,14 @@ using Discord.WebSocket;
 namespace FoodAnalyzer.Core.Discord.Event;
 
 /// <summary>
-/// Discordのインタラクションイベント（スラッシュコマンド等）を処理するイベントハンドラ。
+/// Discordのインタラクションイベント（スラッシュコマンド等）を処理するイベントハンドラ
 /// </summary>
 internal class OnInteractionCreated(DiscordSocketClient client, InteractionService interactionService, IServiceProvider serviceProvider) : IBaseEvent
 {
     /// <summary>
-    /// イベントハンドラをDiscordクライアントに登録します。
+    /// イベントハンドラをDiscordクライアントに登録する
     /// </summary>
-    /// <returns>非同期タスク。</returns>
+    /// <returns>完了を表すタスク</returns>
     public Task RegisterAsync()
     {
         client.InteractionCreated += HandleAsync;
@@ -20,10 +20,10 @@ internal class OnInteractionCreated(DiscordSocketClient client, InteractionServi
     }
 
     /// <summary>
-    /// インタラクションが発生した際に呼び出され、コマンドの実行を試みます。
+    /// インタラクションが発生した際に呼び出され、コマンドの実行を試みる
     /// </summary>
-    /// <param name="socketInteraction">発生したインタラクション。</param>
-    /// <returns>非同期タスク。</returns>
+    /// <param name="socketInteraction">発生したインタラクション</param>
+    /// <returns>非同期処理を表すタスク</returns>
     public async Task HandleAsync(SocketInteraction socketInteraction)
     {
         try

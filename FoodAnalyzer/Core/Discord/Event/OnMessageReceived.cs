@@ -10,8 +10,8 @@ using FoodAnalyzer.Core.Config.Json;
 namespace FoodAnalyzer.Core.Discord.Event;
 
 /// <summary>
-/// Discord メッセージ受信時のイベントハンドラー。
-/// 添付画像がある場合、画像を解析し、結果を指定チャンネルに送信します。
+/// Discord メッセージ受信時のイベントハンドラー
+/// 添付画像がある場合、画像を解析し、結果を指定チャンネルに送信する
 /// </summary>
 internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
 {
@@ -22,9 +22,9 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
     };
 
     /// <summary>
-    /// メッセージ受信イベントのハンドラーを登録します。
+    /// メッセージ受信イベントのハンドラーを登録する
     /// </summary>
-    /// <returns>非同期タスク。</returns>
+    /// <returns>完了を表すタスク</returns>
     public Task RegisterAsync()
     {
         client.MessageReceived += HandleAsync;
@@ -32,11 +32,11 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
     }
 
     /// <summary>
-    /// メッセージ受信時の処理を実行します。
-    /// 添付画像がある場合、画像を解析し、結果を送信します。
+    /// メッセージ受信時の処理を実行する
+    /// 添付画像がある場合、画像を解析し、結果を送信する
     /// </summary>
-    /// <param name="message">受信したメッセージ。</param>
-    /// <returns>非同期タスク。</returns>
+    /// <param name="message">受信したメッセージ</param>
+    /// <returns>非同期処理を表すタスク</returns>
     public async Task HandleAsync(SocketMessage message)
     {
         if (message.Author.IsBot) return;

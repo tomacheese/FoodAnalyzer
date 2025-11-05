@@ -5,14 +5,14 @@ using FoodAnalyzer.Core.Discord;
 namespace FoodAnalyzer;
 
 /// <summary>
-/// アプリケーションのエントリポイントを提供します。
+/// アプリケーションのエントリポイント
 /// </summary>
 internal class Program
 {
     /// <summary>
-    /// Discord クライアントを初期化し、メインループを開始します。
+    /// Discord クライアントを初期化し、メインループを開始する
     /// </summary>
-    /// <returns>非同期タスク。</returns>
+    /// <returns>非同期処理を表すタスク</returns>
     public static async Task Main()
     {
         ConfigData config = AppConfig.Instance;

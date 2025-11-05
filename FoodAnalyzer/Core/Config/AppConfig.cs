@@ -14,7 +14,7 @@ internal class AppConfig
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { WriteIndented = true };
 
     /// <summary>
-    /// 設定データのインスタンスを取得します。
+    /// 設定データのインスタンス
     /// </summary>
     public static ConfigData Instance
     {
@@ -32,7 +32,7 @@ internal class AppConfig
     }
 
     /// <summary>
-    /// 設定の保存
+    /// 設定を保存する
     /// </summary>
     public static void Save()
     {
@@ -43,9 +43,9 @@ internal class AppConfig
     }
 
     /// <summary>
-    /// 設定の保存
+    /// 設定を保存する
     /// </summary>
-    /// <param name="config">コンフィグ情報</param>
+    /// <param name="config">保存するコンフィグ情報</param>
     private static void Save(ConfigData config)
     {
         var json = JsonSerializer.Serialize(config, _jsonSerializerOptions);
@@ -54,7 +54,7 @@ internal class AppConfig
     }
 
     /// <summary>
-    /// 設定の読み込み
+    /// 設定を読み込む
     /// </summary>
     private static ConfigData Load()
     {

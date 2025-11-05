@@ -7,29 +7,29 @@ using Microsoft.Extensions.DependencyInjection;
 namespace FoodAnalyzer.Core.Discord;
 
 /// <summary>
-/// Discord クライアントのラッパークラス。Bot の初期化とイベント登録を行います。
+/// Discord クライアントのラッパークラス。Bot の初期化とイベント登録を行う
 /// </summary>
 internal class DiscordClient : IDisposable
 {
     private readonly string _token;
 
     /// <summary>
-    /// 内部の <see cref="DiscordSocketClient"/> インスタンス。
+    /// 内部の <see cref="DiscordSocketClient"/> インスタンス
     /// </summary>
     private readonly DiscordSocketClient _client;
 
     /// <summary>
-    /// インタラクションサービス。
+    /// インタラクションサービス
     /// </summary>
     private readonly InteractionService _interactionService;
 
     /// <summary>
-    /// 依存性注入サービスプロバイダー。
+    /// 依存性注入サービスプロバイダー
     /// </summary>
     private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
-    /// 指定したトークンで Discord クライアントを初期化します。
+    /// 指定したトークンで Discord クライアントを初期化する
     /// </summary>
     /// <param name="token">Bot の認証トークン</param>
     public DiscordClient(string token)
@@ -51,9 +51,9 @@ internal class DiscordClient : IDisposable
     }
 
     /// <summary>
-    /// 依存性注入サービスプロバイダーを構築します。
+    /// 依存性注入サービスプロバイダーを構築する
     /// </summary>
-    /// <returns>構築された <see cref="ServiceProvider"/>。</returns>
+    /// <returns><see cref="ServiceProvider"/> インスタンス</returns>
     private ServiceProvider BuildServiceProvider()
     {
         return new ServiceCollection()
@@ -63,9 +63,9 @@ internal class DiscordClient : IDisposable
     }
 
     /// <summary>
-    /// 必要なイベントハンドラをクライアントに登録します。
+    /// 必要なイベントハンドラをクライアントに登録する
     /// </summary>
-    /// <param name="client">イベントを登録する <see cref="DiscordSocketClient"/>。</param>
+    /// <param name="client">イベント登録対象の <see cref="DiscordSocketClient"/></param>
     private void RegisterEventsAsync(DiscordSocketClient client)
     {
         var events = new IBaseEvent[]
@@ -86,9 +86,9 @@ internal class DiscordClient : IDisposable
     }
 
     /// <summary>
-    /// Discord クライアントを起動し、Bot としてログインします。
+    /// Discord クライアントを起動し、Bot としてログインする
     /// </summary>
-    /// <returns>完了したTask</returns>
+    /// <returns>非同期処理を表すタスク</returns>
     public async Task StartAsync()
     {
         await _client.LoginAsync(TokenType.Bot, _token).ConfigureAwait(false);
@@ -96,7 +96,7 @@ internal class DiscordClient : IDisposable
     }
 
     /// <summary>
-    /// リソースを解放します。内部の <see cref="DiscordSocketClient"/> を破棄します。
+    /// リソースを解放する
     /// </summary>
     public void Dispose()
     {
