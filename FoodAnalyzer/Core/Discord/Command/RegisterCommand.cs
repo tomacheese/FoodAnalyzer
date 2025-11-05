@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Discord;
 using Discord.Interactions;
 using FoodAnalyzer.Core.Config;
@@ -7,8 +8,8 @@ namespace FoodAnalyzer.Core.Discord.Command;
 /// <summary>
 /// Discord Slash Command : register
 /// </summary>
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515", Justification = "コマンドクラスのため、外部から参照できる必要がある")]
-[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0079", Justification = "コマンドクラスのため、外部から参照できる必要がある")]
+[SuppressMessage("Maintainability", "CA1515", Justification = "コマンドクラスのため、外部から参照できる必要がある")]
+[SuppressMessage("CodeQuality", "IDE0079", Justification = "コマンドクラスのため、外部から参照できる必要がある")]
 public class RegisterCommand : InteractionModuleBase<SocketInteractionContext>
 {
     /// <summary>
