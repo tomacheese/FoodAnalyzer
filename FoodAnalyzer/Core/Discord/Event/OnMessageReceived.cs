@@ -50,10 +50,20 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
 
         await message.AddReactionAsync(new Emoji("👀")).ConfigureAwait(false);
 
-        ConfigData config = AppConfig.Instance;
-        var openAI = new AzureOpenAI(config.Azure.Endpoint, config.Azure.ApiKey, config.Azure.Deployment);
+        try
+        {
+            ConfigData config = AppConfig.Instance;
+            var openAI = new AzureOpenAI(config.Azure.Endpoint, config.Azure.ApiKey, config.Azure.Deployment);
 
-        await AnalyzeAndSendAttachmentsAsync(message, sentTextChannel, openAI).ConfigureAwait(false);
+            await AnalyzeAndSendAttachmentsAsync(message, sentTextChannel, openAI).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            await SendLongMessageAsync(sentTextChannel, $"{message.GetJumpUrl()}\nエラーが発生しました: {ex.Message}").ConfigureAwait(false);
+            await message.AddReactionAsync(new Emoji("❌")).ConfigureAwait(false);
+            await message.RemoveReactionAsync(new Emoji("👀"), client.CurrentUser).ConfigureAwait(false);
+            return;
+        }
 
         await message.AddReactionAsync(new Emoji("✅")).ConfigureAwait(false);
         await message.RemoveReactionAsync(new Emoji("👀"), client.CurrentUser).ConfigureAwait(false);
@@ -81,7 +91,82 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
 
             FoodAnalysisResponse response = await openAI.AnalyzeFoodAsync(attachment.Url, attachment.Width!.Value, attachment.Height!.Value).ConfigureAwait(false);
             var jsonResponse = JsonSerializer.Serialize(response, _jsonOptions);
-            await sentTextChannel.SendMessageAsync($"{message.GetJumpUrl()}@{attachmentNumber}\n総カロリー: {response.Total.Calories} kcal\n```json\n{jsonResponse}\n```").ConfigureAwait(false);
+            var messageContent = $"{message.GetJumpUrl()}@{attachmentNumber}\n総カロリー: {response.Total.Calories} kcal\n```json\n{jsonResponse}\n```";
+
+            await SendLongMessageAsync(sentTextChannel, messageContent).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>
+    /// 長いメッセージを改行単位で分割して送信する
+    /// Discordの文字数制限（2000文字）を超える場合に対応
+    /// </summary>
+    /// <param name="channel">送信先チャンネル</param>
+    /// <param name="message">送信するメッセージ</param>
+    /// <returns>非同期処理を表すタスク</returns>
+    private static async Task SendLongMessageAsync(SocketTextChannel channel, string message)
+    {
+        const int maxLength = 2000;
+
+        if (message.Length <= maxLength)
+        {
+            await channel.SendMessageAsync(message).ConfigureAwait(false);
+            return;
+        }
+
+        var lines = message.Split('\n');
+        var currentMessage = string.Empty;
+        var isInCodeBlock = false;
+        var codeBlockLanguage = string.Empty;
+
+        foreach (var line in lines)
+        {
+            var lineWithNewline = currentMessage.Length == 0 ? line : $"\n{line}";
+
+            // コードブロックの開始/終了を検出
+            if (line.StartsWith("```", StringComparison.Ordinal))
+            {
+                if (!isInCodeBlock)
+                {
+                    isInCodeBlock = true;
+                    codeBlockLanguage = line.Length > 3 ? line[3..] : string.Empty;
+                }
+                else
+                {
+                    isInCodeBlock = false;
+                }
+            }
+
+            // 追加すると制限を超える場合
+            if (currentMessage.Length + lineWithNewline.Length > maxLength)
+            {
+                // コードブロック内の場合は閉じる
+                if (isInCodeBlock)
+                {
+                    currentMessage += "\n```";
+                }
+
+                await channel.SendMessageAsync(currentMessage).ConfigureAwait(false);
+
+                // 次のメッセージの開始
+                currentMessage = isInCodeBlock ? $"```{codeBlockLanguage}\n{line}" : line;
+            }
+            else
+            {
+                currentMessage += lineWithNewline;
+            }
+        }
+
+        // 残りのメッセージを送信
+        if (currentMessage.Length > 0)
+        {
+            // コードブロックが閉じられていない場合は閉じる
+            if (isInCodeBlock && !currentMessage.EndsWith("```", StringComparison.Ordinal))
+            {
+                currentMessage += "\n```";
+            }
+
+            await channel.SendMessageAsync(currentMessage).ConfigureAwait(false);
         }
     }
 
