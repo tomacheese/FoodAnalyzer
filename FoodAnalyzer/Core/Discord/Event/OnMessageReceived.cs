@@ -42,37 +42,54 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
         if (message.Author.IsBot) return;
         if (message.Attachments.Count == 0) return;
 
-        List<MonitorChannelData> monitorChannels = MonitorManager.GetChannels();
-        MonitorChannelData? monitorChannel = monitorChannels
-            .FirstOrDefault(channel => channel.ReceivedChannelId == message.Channel.Id);
+        MonitorChannelData? monitorChannel = GetMonitorChannel(message.Channel.Id);
         if (monitorChannel == null) return;
 
-        IChannel sentChannel = await client.GetChannelAsync(monitorChannel.SentChannelId).ConfigureAwait(false);
-        if (sentChannel == null) return;
-        if (sentChannel is not SocketTextChannel) return;
-        var sentTextChannel = (SocketTextChannel)sentChannel;
+        SocketTextChannel? sentTextChannel = await GetSentTextChannelAsync(monitorChannel.SentChannelId).ConfigureAwait(false);
+        if (sentTextChannel == null) return;
 
         await message.AddReactionAsync(new Emoji("👀")).ConfigureAwait(false);
 
         ConfigData config = AppConfig.Instance;
-        AzureOpenAI openAI = new(config.Azure.Endpoint, config.Azure.ApiKey, config.Azure.Deployment);
+        var openAI = new AzureOpenAI(config.Azure.Endpoint, config.Azure.ApiKey, config.Azure.Deployment);
+
+        await AnalyzeAndSendAttachmentsAsync(message, sentTextChannel, openAI).ConfigureAwait(false);
+
+        await message.AddReactionAsync(new Emoji("✅")).ConfigureAwait(false);
+        await message.RemoveReactionAsync(new Emoji("👀"), client.CurrentUser).ConfigureAwait(false);
+    }
+
+    private static MonitorChannelData? GetMonitorChannel(ulong channelId)
+    {
+        List<MonitorChannelData> monitorChannels = MonitorManager.GetChannels();
+        return monitorChannels.FirstOrDefault(channel => channel.ReceivedChannelId == channelId);
+    }
+
+    private async Task<SocketTextChannel?> GetSentTextChannelAsync(ulong sentChannelId)
+    {
+        IChannel sentChannel = await client.GetChannelAsync(sentChannelId).ConfigureAwait(false);
+        return sentChannel as SocketTextChannel;
+    }
+
+    private static async Task AnalyzeAndSendAttachmentsAsync(SocketMessage message, SocketTextChannel sentTextChannel, AzureOpenAI openAI)
+    {
         var attachmentNumber = 0;
         foreach (Attachment attachment in message.Attachments)
         {
             attachmentNumber++;
-            var width = attachment.Width;
-            var height = attachment.Height;
-            if (attachment.ContentType == null || !attachment.ContentType.StartsWith("image/", StringComparison.Ordinal) || width == null || height == null)
-            {
-                continue;
-            }
+            if (!IsImageAttachment(attachment)) continue;
 
-            FoodAnalysisResponse response = await openAI.AnalyzeFoodAsync(attachment.Url, width.Value, height.Value).ConfigureAwait(false);
+            FoodAnalysisResponse response = await openAI.AnalyzeFoodAsync(attachment.Url, attachment.Width!.Value, attachment.Height!.Value).ConfigureAwait(false);
             var jsonResponse = JsonSerializer.Serialize(response, _jsonOptions);
             await sentTextChannel.SendMessageAsync($"{message.GetJumpUrl()}@{attachmentNumber}\n総カロリー: {response.Total.Calories} kcal\n```json\n{jsonResponse}\n```").ConfigureAwait(false);
         }
+    }
 
-        await message.AddReactionAsync(new Emoji("✅")).ConfigureAwait(false);
-        await message.RemoveReactionAsync(new Emoji("👀"), client.CurrentUser).ConfigureAwait(false);
+    private static bool IsImageAttachment(Attachment attachment)
+    {
+        return attachment.ContentType != null
+            && attachment.ContentType.StartsWith("image/", StringComparison.Ordinal)
+            && attachment.Width.HasValue
+            && attachment.Height.HasValue;
     }
 }

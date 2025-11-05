@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace FoodAnalyzer.Core.Azure.Models;
@@ -23,6 +24,8 @@ internal class FoodAnalysisResponse
 /// <summary>
 /// 単一の食品アイテムの情報を表します。
 /// </summary>
+[SuppressMessage("CodeQuality", "IDE0079", Justification = "JSON シリアライザーで使用されるため")]
+[SuppressMessage("Performance", "CA1812", Justification = "JSON シリアライザーで使用されるため")]
 internal class FoodItem
 {
     /// <summary>
