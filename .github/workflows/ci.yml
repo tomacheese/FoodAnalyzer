@@ -8,7 +8,23 @@ on:
 
 jobs:
   build:
+    name: Build (${{ matrix.runtime }})
     runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          [
+            win-x86,
+            win-x64,
+            win-arm64,
+            osx-x64,
+            osx-arm64,
+            linux-x64,
+            linux-arm,
+            linux-arm64,
+          ]
 
     steps:
       - name: Checkout repository
@@ -34,12 +50,13 @@ jobs:
         run: dotnet build FoodAnalyzer.sln /p:Configuration=Release
 
       - name: Publish solution
-        run: dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish
+        run: |
+          dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish --runtime ${{ matrix.runtime }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: FoodAnalyzer
+          name: FoodAnalyzer-${{ matrix.runtime }}
           path: |
             **/bin/
 
