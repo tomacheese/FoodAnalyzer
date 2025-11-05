@@ -33,12 +33,27 @@ jobs:
           custom_release_rules: "feat:minor:✨ Features,fix:patch:🐛 Fixes,docs:patch:📰 Docs,chore:patch:🎨 Chore,pref:patch:🎈 Performance improvements,refactor:patch:🧹 Refactoring,build:patch:🔍 Build,ci:patch:🔍 CI,revert:patch:⏪ Revert,style:patch:🧹 Style,test:patch:👀 Test,release:major:📦 Release"
 
   build-and-release:
-    name: Build and Release
+    name: Build and Release (${{ matrix.runtime }})
     runs-on: windows-latest
     needs: bump-version
 
     env:
       version: ${{ needs.bump-version.outputs.version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          [
+            win-x86,
+            win-x64,
+            win-arm64,
+            osx-x64,
+            osx-arm64,
+            linux-x64,
+            linux-arm,
+            linux-arm64,
+          ]
 
     steps:
       - name: Checkout repository
@@ -72,11 +87,11 @@ jobs:
         run: dotnet restore FoodAnalyzer.sln
 
       - name: Build solution
-        run: dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish
+        run: dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish --runtime ${{ matrix.runtime }}
 
       - name: Create zip
         run: |
-          $zipFilePath = "FoodAnalyzer.zip"
+          $zipFilePath = "FoodAnalyzer-${{ matrix.runtime }}.zip"
           $sourceDir = "bin/Publish/*"
           Compress-Archive -Path $sourceDir -DestinationPath $zipFilePath -Force
         shell: pwsh
@@ -87,4 +102,4 @@ jobs:
           body: ${{ needs.bump-version.outputs.changelog }}
           tag_name: ${{ needs.bump-version.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          files: FoodAnalyzer.zip
+          files: FoodAnalyzer-${{ matrix.runtime }}.zip
