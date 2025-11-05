@@ -6,7 +6,7 @@ internal class AzureConfigData
     [JsonPropertyName("endpoint")]
     public string Endpoint { get; set; } = string.Empty;
 
-    [JsonPropertyName("apiKey")]
+    [JsonPropertyName("apikey")]
     public string ApiKey { get; set; } = string.Empty;
 
     [JsonPropertyName("deployment")]

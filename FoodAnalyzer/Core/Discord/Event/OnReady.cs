@@ -32,8 +32,6 @@ internal class OnReady(DiscordSocketClient client, InteractionService interactio
 
     private async Task RegisterCommandsAsync()
     {
-        // まずモジュールをInteractionServiceに追加
-        Console.WriteLine("Adding modules to InteractionService...");
         await interactionService.AddModulesAsync(Assembly.GetExecutingAssembly(), serviceProvider).ConfigureAwait(false);
         Console.WriteLine($"Modules added to InteractionService. Module count: {interactionService.Modules.Count}");
 

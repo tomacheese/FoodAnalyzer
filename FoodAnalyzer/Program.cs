@@ -1,5 +1,5 @@
-using Discord;
-using Discord.WebSocket;
+using FoodAnalyzer.Core.Config;
+using FoodAnalyzer.Core.Config.Json;
 using FoodAnalyzer.Core.Discord;
 
 namespace FoodAnalyzer;
@@ -15,31 +15,11 @@ internal class Program
     /// <returns>非同期タスク。</returns>
     public static async Task Main()
     {
-        // とりあえず仮置き…
-        var token = File.ReadAllText("token.txt").Trim();
+        ConfigData config = AppConfig.Instance;
 
-        var discordClient = new DiscordClient(token);
+        var discordClient = new DiscordClient(config.Discord.Token);
         await discordClient.StartAsync().ConfigureAwait(false);
 
         await Task.Delay(-1).ConfigureAwait(false);
-    }
-
-    /// <summary>
-    /// メッセージ受信時の処理を行います。
-    /// 添付ファイルの URL をコンソールに出力します。
-    /// </summary>
-    /// <param name="message">受信したメッセージ。</param>
-    /// <returns>非同期タスク。</returns>
-    private static async Task OnMessageReceivedAsync(SocketMessage message)
-    {
-        if (message.Author.IsBot)
-            return;
-        if (message.Channel.Id != 840825964027445269)
-            return;
-
-        foreach (Attachment attachment in message.Attachments)
-        {
-            Console.WriteLine($"Attachment URL: {attachment.Url}");
-        }
     }
 }

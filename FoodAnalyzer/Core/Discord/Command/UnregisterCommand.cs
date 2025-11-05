@@ -19,6 +19,6 @@ public class UnregisterCommand : InteractionModuleBase<SocketInteractionContext>
     {
         MonitorManager.RemoveChannel(Context.Guild.Id, Context.Channel.Id);
 
-        await RespondAsync($"このチャンネルを監視対象から削除しました。", ephemeral: true).ConfigureAwait(false);
+        await RespondAsync($"このチャンネルを監視対象から削除しました。").ConfigureAwait(false);
     }
 }

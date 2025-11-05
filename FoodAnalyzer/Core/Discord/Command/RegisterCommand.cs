@@ -19,13 +19,19 @@ public class RegisterCommand : InteractionModuleBase<SocketInteractionContext>
     public async Task RegisterAsync(
         [ChannelTypes(ChannelType.Text)]
         [Summary("sent-channel", "通知対象に登録するチャンネル。指定しない場合はこのチャンネルを登録します。")]
-        IChannel inputSentChannel = null!
+        IChannel? inputSentChannel = null
     )
     {
-        ITextChannel sentChannel = inputSentChannel != null ? inputSentChannel as ITextChannel : Context.Channel as ITextChannel;
-        MonitorManager.AddChannel(Context.Guild.Id, Context.Channel.Id, sentChannel?.Id ?? Context.Channel.Id);
+        ITextChannel? sentChannel = inputSentChannel as ITextChannel ?? Context.Channel as ITextChannel;
+        if (sentChannel == null)
+        {
+            await RespondAsync("送信先チャンネルがテキストチャンネルではありません。").ConfigureAwait(false);
+            return;
+        }
+
+        MonitorManager.AddChannel(Context.Guild.Id, Context.Channel.Id, sentChannel.Id);
 
         await RespondAsync($"このチャンネルを監視対象に登録しました。\n"
-            + $"送信先チャンネル: {sentChannel.Mention}", ephemeral: true).ConfigureAwait(false);
+            + $"送信先チャンネル: {sentChannel.Mention}").ConfigureAwait(false);
     }
 }

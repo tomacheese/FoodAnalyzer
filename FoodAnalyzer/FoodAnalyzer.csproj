@@ -17,6 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
       <PackageReference Include="Discord.Net" Version="3.18.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
       <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
