@@ -15,6 +15,7 @@ public class RegisterCommand : InteractionModuleBase<SocketInteractionContext>
     /// <summary>
     /// チャンネルを監視対象に登録する。
     /// </summary>
+    /// <param name="inputSentChannel">通知対象に登録するチャンネル。指定しない場合はこのチャンネルを登録します。</param>
     /// <returns>非同期タスク</returns>
     [SlashCommand("register", "このチャンネルを監視対象に登録する")]
     public async Task RegisterAsync(

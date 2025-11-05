@@ -98,5 +98,9 @@ internal class DiscordClient : IDisposable
     /// <summary>
     /// リソースを解放します。内部の <see cref="DiscordSocketClient"/> を破棄します。
     /// </summary>
-    public void Dispose() => _client.Dispose();
+    public void Dispose()
+    {
+        _interactionService.Dispose();
+        _client.Dispose();
+    }
 }

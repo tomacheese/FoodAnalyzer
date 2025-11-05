@@ -1,3 +1,4 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
@@ -8,20 +9,34 @@ using FoodAnalyzer.Core.Config.Json;
 
 namespace FoodAnalyzer.Core.Discord.Event;
 
+/// <summary>
+/// Discord メッセージ受信時のイベントハンドラー。
+/// 添付画像がある場合、画像を解析し、結果を指定チャンネルに送信します。
+/// </summary>
 internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
+    /// <summary>
+    /// メッセージ受信イベントのハンドラーを登録します。
+    /// </summary>
+    /// <returns>非同期タスク。</returns>
     public Task RegisterAsync()
     {
         client.MessageReceived += HandleAsync;
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// メッセージ受信時の処理を実行します。
+    /// 添付画像がある場合、画像を解析し、結果を送信します。
+    /// </summary>
+    /// <param name="message">受信したメッセージ。</param>
+    /// <returns>非同期タスク。</returns>
     public async Task HandleAsync(SocketMessage message)
     {
         if (message.Author.IsBot) return;
@@ -53,7 +68,7 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
             }
 
             FoodAnalysisResponse response = await openAI.AnalyzeFoodAsync(attachment.Url, width.Value, height.Value).ConfigureAwait(false);
-            var jsonResponse = JsonSerializer.Serialize(response, JsonOptions);
+            var jsonResponse = JsonSerializer.Serialize(response, _jsonOptions);
             await sentTextChannel.SendMessageAsync($"{message.GetJumpUrl()}@{attachmentNumber}\n総カロリー: {response.Total.Calories} kcal\n```json\n{jsonResponse}\n```").ConfigureAwait(false);
         }
 
