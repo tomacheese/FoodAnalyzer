@@ -117,7 +117,7 @@ internal class MonitorManager
     /// <returns>モニターファイルパス</returns>
     private static string GetMonitorFilePath()
     {
-        var envPath = Environment.GetEnvironmentVariable("FOODANALYZER_CONFIG_PATH");
+        var envPath = Environment.GetEnvironmentVariable("FOODANALYZER_MONITOR_PATH");
         return !string.IsNullOrEmpty(envPath) ? envPath : "monitor.json";
     }
 }

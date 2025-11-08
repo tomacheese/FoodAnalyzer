@@ -1,0 +1,8 @@
+services:
+  foodanalyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./data:/data

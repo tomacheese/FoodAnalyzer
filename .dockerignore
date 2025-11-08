@@ -1,0 +1,25 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vs
+.vscode
+**/*.user
+
+# Build outputs
+**/bin/
+**/obj/
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Documentation
+LICENSE
+README.md
+
+# Config
+renovate.json
+stylecop.json

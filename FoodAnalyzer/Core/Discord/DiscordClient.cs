@@ -39,7 +39,7 @@ internal class DiscordClient : IDisposable
         var config = new DiscordSocketConfig
         {
             LogLevel = LogSeverity.Info,
-            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent,
+            GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent,
         };
         var client = new DiscordSocketClient(config);
 
