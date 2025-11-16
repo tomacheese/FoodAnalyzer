@@ -27,7 +27,7 @@ internal class MonitorManager
                 _isLoaded = true;
             }
 
-            return _instance!;
+            return _instance;
         }
     }
 
@@ -91,7 +91,11 @@ internal class MonitorManager
     private static void Save(MonitorData monitor)
     {
         var json = JsonSerializer.Serialize(monitor, _jsonSerializerOptions);
-        Directory.CreateDirectory(Directory.GetParent(_monitorFilePath)!.FullName);
+        var directoryPath = Path.GetDirectoryName(_monitorFilePath);
+        if (!string.IsNullOrEmpty(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
         File.WriteAllText(_monitorFilePath, json);
     }
 

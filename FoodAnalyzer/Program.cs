@@ -17,9 +17,23 @@ internal class Program
     {
         ConfigData config = AppConfig.Instance;
 
-        var discordClient = new DiscordClient(config.Discord.Token);
+        using var discordClient = new DiscordClient(config.Discord.Token);
         await discordClient.StartAsync().ConfigureAwait(false);
 
-        await Task.Delay(-1).ConfigureAwait(false);
+        using var cts = new CancellationTokenSource();
+        Console.CancelKeyPress += (sender, e) =>
+        {
+            e.Cancel = true;
+            cts.Cancel();
+        };
+
+        try
+        {
+            await Task.Delay(Timeout.Infinite, cts.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            // Graceful shutdown
+        }
     }
 }

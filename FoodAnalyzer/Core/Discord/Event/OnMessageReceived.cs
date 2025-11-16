@@ -87,14 +87,38 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
         foreach (Attachment attachment in message.Attachments)
         {
             attachmentNumber++;
-            if (!IsImageAttachment(attachment)) continue;
 
-            FoodAnalysisResponse response = await openAI.AnalyzeFoodAsync(attachment.Url, attachment.Width!.Value, attachment.Height!.Value).ConfigureAwait(false);
+            if (!TryGetImageDimensions(attachment, out int width, out int height))
+            {
+                continue;
+            }
+
+            FoodAnalysisResponse response = await openAI.AnalyzeFoodAsync(attachment.Url, width, height).ConfigureAwait(false);
             var jsonResponse = JsonSerializer.Serialize(response, _jsonOptions);
             var messageContent = $"{message.GetJumpUrl()}@{attachmentNumber}\n総カロリー: {response.Total.Calories} kcal\n```json\n{jsonResponse}\n```";
 
             await SendLongMessageAsync(sentTextChannel, messageContent).ConfigureAwait(false);
         }
+    }
+
+    private static bool TryGetImageDimensions(Attachment attachment, out int width, out int height)
+    {
+        width = 0;
+        height = 0;
+
+        if (attachment.ContentType == null || !attachment.ContentType.StartsWith("image/", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (!attachment.Width.HasValue || !attachment.Height.HasValue)
+        {
+            return false;
+        }
+
+        width = attachment.Width.Value;
+        height = attachment.Height.Value;
+        return true;
     }
 
     /// <summary>
@@ -115,13 +139,13 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
         }
 
         var lines = message.Split('\n');
-        var currentMessage = string.Empty;
+        var currentMessageBuilder = new System.Text.StringBuilder();
         var isInCodeBlock = false;
         var codeBlockLanguage = string.Empty;
 
         foreach (var line in lines)
         {
-            var lineWithNewline = currentMessage.Length == 0 ? line : $"\n{line}";
+            var lineWithNewline = currentMessageBuilder.Length == 0 ? line : $"\n{line}";
 
             // コードブロックの開始/終了を検出
             if (line.StartsWith("```", StringComparison.Ordinal))
@@ -138,43 +162,44 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
             }
 
             // 追加すると制限を超える場合
-            if (currentMessage.Length + lineWithNewline.Length > maxLength)
+            if (currentMessageBuilder.Length + lineWithNewline.Length > maxLength)
             {
                 // コードブロック内の場合は閉じる
                 if (isInCodeBlock)
                 {
-                    currentMessage += "\n```";
+                    currentMessageBuilder.Append("\n```");
                 }
 
-                await channel.SendMessageAsync(currentMessage).ConfigureAwait(false);
+                await channel.SendMessageAsync(currentMessageBuilder.ToString()).ConfigureAwait(false);
 
                 // 次のメッセージの開始
-                currentMessage = isInCodeBlock ? $"```{codeBlockLanguage}\n{line}" : line;
+                currentMessageBuilder.Clear();
+                if (isInCodeBlock)
+                {
+                    currentMessageBuilder.Append($"```{codeBlockLanguage}\n{line}");
+                }
+                else
+                {
+                    currentMessageBuilder.Append(line);
+                }
             }
             else
             {
-                currentMessage += lineWithNewline;
+                currentMessageBuilder.Append(lineWithNewline);
             }
         }
 
         // 残りのメッセージを送信
-        if (currentMessage.Length > 0)
+        if (currentMessageBuilder.Length > 0)
         {
             // コードブロックが閉じられていない場合は閉じる
-            if (isInCodeBlock && !currentMessage.EndsWith("```", StringComparison.Ordinal))
+            var finalMessage = currentMessageBuilder.ToString();
+            if (isInCodeBlock && !finalMessage.EndsWith("```", StringComparison.Ordinal))
             {
-                currentMessage += "\n```";
+                currentMessageBuilder.Append("\n```");
             }
 
-            await channel.SendMessageAsync(currentMessage).ConfigureAwait(false);
+            await channel.SendMessageAsync(currentMessageBuilder.ToString()).ConfigureAwait(false);
         }
-    }
-
-    private static bool IsImageAttachment(Attachment attachment)
-    {
-        return attachment.ContentType != null
-            && attachment.ContentType.StartsWith("image/", StringComparison.Ordinal)
-            && attachment.Width.HasValue
-            && attachment.Height.HasValue;
     }
 }

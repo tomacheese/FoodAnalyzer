@@ -27,7 +27,7 @@ internal class AppConfig
                 _isLoaded = true;
             }
 
-            return _instance!;
+            return _instance;
         }
     }
 
@@ -49,7 +49,11 @@ internal class AppConfig
     private static void Save(ConfigData config)
     {
         var json = JsonSerializer.Serialize(config, _jsonSerializerOptions);
-        Directory.CreateDirectory(Directory.GetParent(_configFilePath)!.FullName);
+        var directoryPath = Path.GetDirectoryName(_configFilePath);
+        if (!string.IsNullOrEmpty(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
         File.WriteAllText(_configFilePath, json);
     }
 

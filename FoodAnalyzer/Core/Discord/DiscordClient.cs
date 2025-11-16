@@ -78,7 +78,7 @@ internal class DiscordClient : IDisposable
 
         foreach (IBaseEvent e in events)
         {
-            Console.WriteLine($"Register: {e}");
+            Console.WriteLine($"Register: {e.GetType().Name}");
             e.RegisterAsync().GetAwaiter().GetResult();
         }
 

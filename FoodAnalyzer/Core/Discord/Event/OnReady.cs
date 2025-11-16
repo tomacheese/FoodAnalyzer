@@ -45,7 +45,7 @@ internal class OnReady(DiscordSocketClient client, InteractionService interactio
             }
         }
 
-        // 次にコマンドをギルドに登録
+        // グローバルコマンドは反映に最大1時間かかるため、ギルドコマンドとして登録
         foreach (SocketGuild guild in client.Guilds)
         {
             Console.WriteLine($"Registering slash commands to guild: {guild.Name} ({guild.Id})");

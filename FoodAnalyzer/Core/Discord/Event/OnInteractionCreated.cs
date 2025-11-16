@@ -38,7 +38,7 @@ internal class OnInteractionCreated(DiscordSocketClient client, InteractionServi
 
             if (socketInteraction.Type == InteractionType.ApplicationCommand && !socketInteraction.HasResponded)
             {
-                await socketInteraction.RespondAsync("エラーが発生しました。", ephemeral: true).ConfigureAwait(false);
+                await socketInteraction.RespondAsync("コマンドの実行中にエラーが発生しました。", ephemeral: true).ConfigureAwait(false);
             }
         }
     }
