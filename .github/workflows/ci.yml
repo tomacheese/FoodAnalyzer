@@ -62,3 +62,19 @@ jobs:
 
       - name: Check code style
         run: dotnet format FoodAnalyzer.sln --verify-no-changes --severity warn
+
+  finished-build:
+    name: Check finished build
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - build
+
+    steps:
+      - name: Check build failure
+        run: |
+          echo "Build status: ${{ needs.build.result }}"
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "Build failed"
+            exit 1
+          fi
