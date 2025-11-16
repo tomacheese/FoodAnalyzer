@@ -96,6 +96,7 @@ internal class MonitorManager
         {
             Directory.CreateDirectory(directoryPath);
         }
+
         File.WriteAllText(_monitorFilePath, json);
     }
 

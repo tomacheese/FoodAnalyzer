@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Discord;
@@ -88,7 +89,7 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
         {
             attachmentNumber++;
 
-            if (!TryGetImageDimensions(attachment, out int width, out int height))
+            if (!TryGetImageDimensions(attachment, out var width, out var height))
             {
                 continue;
             }
@@ -176,7 +177,7 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
                 currentMessageBuilder.Clear();
                 if (isInCodeBlock)
                 {
-                    currentMessageBuilder.Append($"```{codeBlockLanguage}\n{line}");
+                    currentMessageBuilder.AppendFormat(CultureInfo.InvariantCulture, "```{0}\n{1}", codeBlockLanguage, line);
                 }
                 else
                 {

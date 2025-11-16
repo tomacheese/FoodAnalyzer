@@ -54,6 +54,7 @@ internal class AppConfig
         {
             Directory.CreateDirectory(directoryPath);
         }
+
         File.WriteAllText(_configFilePath, json);
     }
 
