@@ -34,7 +34,7 @@ jobs:
     with:
       targets: >-
         [
-          { imageName: "tomacheese/FoodAnalyzer", context: ".", file: "Dockerfile", packageName: "FoodAnalyzer" }
+          { imageName: "tomacheese/FoodAnalyzer", context: ".", file: "Dockerfile", packageName: "foodanalyzer" }
         ]
     secrets:
       DOCKER_USERNAME: ${{ github.actor }}
