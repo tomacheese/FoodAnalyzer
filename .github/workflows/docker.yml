@@ -108,9 +108,7 @@ jobs:
         shell: pwsh
 
       - name: Upload file to release
-        uses: actions/upload-release-asset@v1
+        uses: svenstaro/upload-release-action@v2
         with:
-          upload_url: ${{ needs.docker.outputs.upload_url }}
-          asset_path: FoodAnalyzer-${{ matrix.runtime }}.zip
-          asset_name: FoodAnalyzer-${{ matrix.runtime }}.zip
-          asset_content_type: application/zip
+          release_id: ${{ needs.docker.outputs.release_id }}
+          file: FoodAnalyzer-${{ matrix.runtime }}.zip
