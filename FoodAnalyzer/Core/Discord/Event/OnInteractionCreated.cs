@@ -1,0 +1,45 @@
+using Discord;
+using Discord.Interactions;
+using Discord.WebSocket;
+
+namespace FoodAnalyzer.Core.Discord.Event;
+
+/// <summary>
+/// Discordのインタラクションイベント（スラッシュコマンド等）を処理するイベントハンドラ
+/// </summary>
+internal class OnInteractionCreated(DiscordSocketClient client, InteractionService interactionService, IServiceProvider serviceProvider) : IBaseEvent
+{
+    /// <summary>
+    /// イベントハンドラをDiscordクライアントに登録する
+    /// </summary>
+    /// <returns>完了を表すタスク</returns>
+    public Task RegisterAsync()
+    {
+        client.InteractionCreated += HandleAsync;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// インタラクションが発生した際に呼び出され、コマンドの実行を試みる
+    /// </summary>
+    /// <param name="socketInteraction">発生したインタラクション</param>
+    /// <returns>非同期処理を表すタスク</returns>
+    public async Task HandleAsync(SocketInteraction socketInteraction)
+    {
+        try
+        {
+            var ctx = new SocketInteractionContext(client, socketInteraction);
+            await interactionService.ExecuteCommandAsync(ctx, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Error] Interaction handling failed: {ex}");
+            Console.WriteLine(ex.ToString());
+
+            if (socketInteraction.Type == InteractionType.ApplicationCommand && !socketInteraction.HasResponded)
+            {
+                await socketInteraction.RespondAsync("コマンドの実行中にエラーが発生しました。", ephemeral: true).ConfigureAwait(false);
+            }
+        }
+    }
+}

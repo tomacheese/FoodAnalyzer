@@ -1,0 +1,80 @@
+name: Build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    name: Build (${{ matrix.runtime }})
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          [
+            win-x86,
+            win-x64,
+            win-arm64,
+            osx-x64,
+            osx-arm64,
+            linux-x64,
+            linux-arm,
+            linux-arm64,
+          ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dotnet packages
+        run: dotnet restore FoodAnalyzer.sln
+
+      - name: Build solution
+        run: dotnet build FoodAnalyzer.sln /p:Configuration=Release
+
+      - name: Publish solution
+        run: |
+          dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish --runtime ${{ matrix.runtime }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoodAnalyzer-${{ matrix.runtime }}
+          path: |
+            **/bin/
+
+      - name: Check code style
+        run: dotnet format FoodAnalyzer.sln --verify-no-changes --severity warn
+
+  finished-build:
+    name: Check finished build
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - build
+
+    steps:
+      - name: Check build failure
+        run: |
+          echo "Build status: ${{ needs.build.result }}"
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "Build failed"
+            exit 1
+          fi
