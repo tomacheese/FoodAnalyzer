@@ -71,8 +71,13 @@ internal class AppConfig
         }
 
         var json = File.ReadAllText(_configFilePath);
-        return JsonSerializer.Deserialize<ConfigData>(json)
-               ?? new ConfigData();
+        ConfigData config = JsonSerializer.Deserialize<ConfigData>(json)
+                            ?? new ConfigData();
+
+        // 環境変数から設定を上書き
+        config.ApplyEnvironmentVariables();
+
+        return config;
     }
 
     private static string GetConfigFilePath()
