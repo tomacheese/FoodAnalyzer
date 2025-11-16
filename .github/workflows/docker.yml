@@ -28,7 +28,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.merged == true && github.base_ref || github.event.pull_request.head.sha }}
 
 jobs:
-  docker-ci:
+  docker:
     name: Docker CI
     uses: book000/templates/.github/workflows/reusable-docker.yml@master
     with:
@@ -39,3 +39,75 @@ jobs:
     secrets:
       DOCKER_USERNAME: ${{ github.actor }}
       DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build And Upload Release (${{ matrix.runtime }})
+    runs-on: ubuntu-latest
+    needs: docker
+
+    env:
+      version: ${{ needs.docker.outputs.version }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime:
+          [
+            win-x86,
+            win-x64,
+            win-arm64,
+            osx-x64,
+            osx-arm64,
+            linux-x64,
+            linux-arm,
+            linux-arm64,
+          ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Set version from tag
+        run: |
+          $version = $env:APP_VERSION
+          $versionWithRevision = ($version.Split('.') + '0')[0..3] -join '.'
+          (Get-Content .\FoodAnalyzer\FoodAnalyzer.csproj) -replace '<Version>[^<]*(</Version>)', "<Version>$version</Version>" | Set-Content .\FoodAnalyzer\FoodAnalyzer.csproj
+          (Get-Content .\FoodAnalyzer\FoodAnalyzer.csproj) -replace '<AssemblyVersion>[^<]*</AssemblyVersion>', "<AssemblyVersion>$versionWithRevision</AssemblyVersion>" | Set-Content .\FoodAnalyzer\FoodAnalyzer.csproj
+          (Get-Content .\FoodAnalyzer\FoodAnalyzer.csproj) -replace '<FileVersion>[^<]*</FileVersion>', "<FileVersion>$versionWithRevision</FileVersion>" | Set-Content .\FoodAnalyzer\FoodAnalyzer.csproj
+        shell: pwsh
+        env:
+          APP_VERSION: ${{ needs.docker.outputs.version }}
+
+      - name: Restore dotnet packages
+        run: dotnet restore FoodAnalyzer.sln
+
+      - name: Build solution
+        run: dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish --runtime ${{ matrix.runtime }}
+
+      - name: Create zip
+        run: |
+          $zipFilePath = "FoodAnalyzer-${{ matrix.runtime }}.zip"
+          $sourceDir = "bin/Publish/*"
+          Compress-Archive -Path $sourceDir -DestinationPath $zipFilePath -Force
+        shell: pwsh
+
+      - name: Upload file to release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ needs.docker.outputs.upload_url }}
+          asset_path: FoodAnalyzer-${{ matrix.runtime }}.zip
+          asset_name: FoodAnalyzer-${{ matrix.runtime }}.zip
+          asset_content_type: application/zip
