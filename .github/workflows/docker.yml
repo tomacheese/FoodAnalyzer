@@ -45,6 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.docker.outputs.release_id != ''
     needs: docker
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Azure Login
