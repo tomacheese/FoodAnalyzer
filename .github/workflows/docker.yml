@@ -40,6 +40,30 @@ jobs:
       DOCKER_USERNAME: ${{ github.actor }}
       DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
+  deploy:
+    name: Deploy Release
+    runs-on: ubuntu-latest
+    if: needs.docker.outputs.release_id != ''
+    needs: docker
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy public GHCR image to Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          resourceGroup: ${{ secrets.AZURE_CONTAINER_APP_RESOURCE_GROUP }}
+          containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
+          imageToDeploy: ghcr.io/tomacheese/foodanalyzer:${{ needs.docker.outputs.version }}
+
   build:
     name: Build And Upload Release (${{ matrix.runtime }})
     runs-on: windows-latest
