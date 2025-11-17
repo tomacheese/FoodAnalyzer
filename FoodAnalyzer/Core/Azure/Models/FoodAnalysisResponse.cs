@@ -59,22 +59,16 @@ internal class FoodItem
     public double CarbsG { get; set; }
 
     /// <summary>
-    /// アレルゲンのリスト
-    /// </summary>
-    [JsonPropertyName("allergens")]
-    public List<string> Allergens { get; set; } = [];
-
-    /// <summary>
-    /// 料理の種類
-    /// </summary>
-    [JsonPropertyName("cuisine")]
-    public string Cuisine { get; set; } = string.Empty;
-
-    /// <summary>
     /// 調理方法
     /// </summary>
     [JsonPropertyName("cooking_method")]
     public string CookingMethod { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 原材料のリスト
+    /// </summary>
+    [JsonPropertyName("ingredients")]
+    public List<string> Ingredients { get; set; } = [];
 
     /// <summary>
     /// 画像内のバウンディングボックス情報
@@ -147,22 +141,16 @@ internal class FoodTotal
     public double CarbsG { get; set; }
 
     /// <summary>
-    /// 含まれるアレルゲンのリスト
-    /// </summary>
-    [JsonPropertyName("allergens")]
-    public List<string> Allergens { get; set; } = [];
-
-    /// <summary>
-    /// 含まれる料理の種類のリスト
-    /// </summary>
-    [JsonPropertyName("cuisine")]
-    public List<string> Cuisine { get; set; } = [];
-
-    /// <summary>
     /// 含まれる調理方法のリスト
     /// </summary>
     [JsonPropertyName("cooking_method")]
     public List<string> CookingMethod { get; set; } = [];
+
+    /// <summary>
+    /// 原材料のリスト
+    /// </summary>
+    [JsonPropertyName("ingredients")]
+    public List<string> Ingredients { get; set; } = [];
 
     /// <summary>
     /// メッセージ
