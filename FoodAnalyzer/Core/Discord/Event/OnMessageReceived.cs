@@ -162,6 +162,61 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
                 }
             }
 
+            // 単一の行が制限を超える場合は、行を分割する必要がある
+            if (lineWithNewline.Length > maxLength)
+            {
+                // 現在のバッファを送信（空でない場合）
+                if (currentMessageBuilder.Length > 0)
+                {
+                    if (isInCodeBlock)
+                    {
+                        currentMessageBuilder.Append("\n```");
+                    }
+
+                    await channel.SendMessageAsync(currentMessageBuilder.ToString()).ConfigureAwait(false);
+                    currentMessageBuilder.Clear();
+                }
+
+                // 長い行を複数のチャンクに分割
+                var remainingLine = line;
+                while (remainingLine.Length > 0)
+                {
+                    var chunkSize = maxLength;
+
+                    // コードブロック内の場合、開始タグと終了タグのスペースを確保
+                    if (isInCodeBlock)
+                    {
+                        var codeBlockOverhead = 3 + codeBlockLanguage.Length + 1 + 4; // "```lang\n" + "\n```"
+                        chunkSize = maxLength - codeBlockOverhead;
+                        if (chunkSize <= 0)
+                        {
+                            chunkSize = maxLength - 8; // 最小限のオーバーヘッド "```\n```\n"
+                        }
+                    }
+
+                    var chunk = remainingLine.Length <= chunkSize ? remainingLine : remainingLine[..chunkSize];
+                    remainingLine = remainingLine.Length <= chunkSize ? string.Empty : remainingLine[chunkSize..];
+
+                    if (isInCodeBlock)
+                    {
+                        currentMessageBuilder.AppendFormat(CultureInfo.InvariantCulture, "```{0}\n{1}", codeBlockLanguage, chunk);
+                        if (remainingLine.Length > 0 || lines[^1] != line)
+                        {
+                            currentMessageBuilder.Append("\n```");
+                        }
+                    }
+                    else
+                    {
+                        currentMessageBuilder.Append(chunk);
+                    }
+
+                    await channel.SendMessageAsync(currentMessageBuilder.ToString()).ConfigureAwait(false);
+                    currentMessageBuilder.Clear();
+                }
+
+                continue;
+            }
+
             // 追加すると制限を超える場合
             if (currentMessageBuilder.Length + lineWithNewline.Length > maxLength)
             {
