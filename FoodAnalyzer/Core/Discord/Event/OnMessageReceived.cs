@@ -144,8 +144,9 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
         var isInCodeBlock = false;
         var codeBlockLanguage = string.Empty;
 
-        foreach (var line in lines)
+        for (var i = 0; i < lines.Length; i++)
         {
+            var line = lines[i];
             var lineWithNewline = currentMessageBuilder.Length == 0 ? line : $"\n{line}";
 
             // コードブロックの開始/終了を検出
@@ -190,7 +191,13 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
                         chunkSize = maxLength - codeBlockOverhead;
                         if (chunkSize <= 0)
                         {
-                            chunkSize = maxLength - 8; // 最小限のオーバーヘッド "```\n```\n"
+                            // Fallback: subtract minimum code block overhead and language tag length
+                            chunkSize = maxLength - 8 - codeBlockLanguage.Length; // "```\n" + "\n```" + language
+                            if (chunkSize <= 0)
+                            {
+                                // Safety: ensure chunkSize is at least 1 to prevent infinite loops
+                                chunkSize = 1;
+                            }
                         }
                     }
 
@@ -200,7 +207,7 @@ internal class OnMessageReceived(DiscordSocketClient client) : IBaseEvent
                     if (isInCodeBlock)
                     {
                         currentMessageBuilder.AppendFormat(CultureInfo.InvariantCulture, "```{0}\n{1}", codeBlockLanguage, chunk);
-                        if (remainingLine.Length > 0 || lines[^1] != line)
+                        if (remainingLine.Length > 0 || i < lines.Length - 1)
                         {
                             currentMessageBuilder.Append("\n```");
                         }
