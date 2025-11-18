@@ -54,7 +54,7 @@ jobs:
           dotnet publish FoodAnalyzer.sln -p:PublishProfile=Publish --runtime ${{ matrix.runtime }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: FoodAnalyzer-${{ matrix.runtime }}
           path: |
