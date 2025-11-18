@@ -62,7 +62,7 @@ jobs:
         with:
           resourceGroup: ${{ secrets.AZURE_CONTAINER_APP_RESOURCE_GROUP }}
           containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
-          imageToDeploy: ghcr.io/tomacheese/foodanalyzer:${{ needs.docker.outputs.version }}
+          imageToDeploy: ghcr.io/tomacheese/foodanalyzer:${{ needs.docker.outputs.tag }}
 
   build:
     name: Build And Upload Release (${{ matrix.runtime }})
